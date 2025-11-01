@@ -73,7 +73,7 @@ The scripts are intended to be run independently so you can mix and match them i
 Example command for the largest benchmark used in our study:
 
 ```bash
-python generate_cfmm_dataset.py \
+python3 generate_cfmm_dataset.py \
   --n-tokens 128 --m-pools 4000 \
   --ratio-product 0.35 --ratio-weighted 0.55 --ratio-sum 0.10 \
   --pair-prob 0.75 --weighted-arities 3 4 5 \
@@ -104,14 +104,14 @@ Add `--save-npz` if you prefer loading arrays from a compressed NumPy archive.
 Run the example from the repository root:
 
 ```bash
-python large_example.py
+python3 large_example.py
 ```
 
 ### 3. Analyse Solver Iterations
 The plotting scripts (`plot_iter_cla.py`, `plot_iter_ecos.py`, `plot_iter_scs.py`, `plot_iter_mosek.py`) parse stored console logs and emit publication-ready figures showing cost and residual trajectories. Each script saves a PDF alongside an interactive window if your environment supports it:
 
 ```bash
-python plot_iter_ecos.py
+python3 plot_iter_ecos.py
 ```
 
 The generated PDFs are stored under `output/` for convenience.
@@ -120,7 +120,7 @@ The generated PDFs are stored under `output/` for convenience.
 `compare.py` encodes the hand-recorded runtimes for Clarabel, ECOS, SCS, and MOSEK across six problem scales (from `8×12` up to `128×4000`). Running the script produces the `solver_runtime_vs_size_0.pdf` figure and prints the output path.
 
 ```bash
-python compare.py
+python3 compare.py
 ```
 
 The inset plot highlights differences in the smaller regimes, while missing datapoints (e.g. Clarabel on large instances) are omitted automatically.
