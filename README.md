@@ -167,4 +167,4 @@ Follow the steps below to recreate the figures and optimisation results:
 - When comparing solvers, record both wall-clock time and iteration counts to disentangle convergence speed from per-iteration cost.
 
 ## Credits
-This codebase adapts coursework originally produced by Wenxing Duan, Peimin Gao, Hiu Long Lee, and Yulin Zhou. Subsequent refinements and documentation updates were prepared for the COMP6704 CFMM routing study group.
+This codebase adapts coursework originally produced by Wenxing Duan, Peimin Gao, Hiu Long Lee, and Yulin Zhou.
