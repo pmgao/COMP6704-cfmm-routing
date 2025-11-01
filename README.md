@@ -1,4 +1,4 @@
-# CFMM Routing Experiments
+# CFMM Routing
 
 > Reimplementation assets for the COMP6704 project exploring optimal routing across networks of constant function market makers.
 
