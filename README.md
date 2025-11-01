@@ -42,7 +42,7 @@ This repository gathers the scripts, datasets, and plotting utilities that accom
 ```
 
 ## Environment Setup
-We recommend Python ≥ 3.9 with an isolated virtual environment:
+We recommend Python ≥ 3.12 with an isolated virtual environment:
 
 ```bash
 sudo apt update && sudo apt install python3-virtualenv
