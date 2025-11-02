@@ -1,6 +1,6 @@
 # CFMM Routing
 
-> Reimplementation assets for the COMP6704 project exploring optimal routing across networks of constant function market makers.
+> Implementation assets for the COMP6704 project exploring optimal routing across networks of constant function market makers.
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
@@ -23,7 +23,7 @@ This repository gathers the scripts, datasets, and plotting utilities that accom
 
 ## Key Features
 - **Dataset generator** that emits JSON (and optional NumPy) artefacts compatible with the [angeris/cfmm-routing-code](https://github.com/angeris/cfmm-routing-code) specification.
-- **End-to-end optimisation example** showcasing how to load a dataset, assemble the convex programme, and solve a liquidation task.
+- **End-to-end optimization example** showcasing how to load a dataset, assemble the convex programme, and solve a liquidation task.
 - **Solver diagnostics tooling** for visualising iteration logs from Clarabel, ECOS, SCS, and MOSEK across multiple problem sizes.
 - **Runtime comparison scripts** reproducing the summary plots used in our final report.
 
@@ -33,12 +33,12 @@ This repository gathers the scripts, datasets, and plotting utilities that accom
 ├── compare.py                # Generates the solver runtime comparison plot.
 ├── generate_cfmm_dataset.py  # CLI for synthetic CFMM network generation.
 ├── large_example.py          # Liquidation-style routing example solved with CVXPY.
-├── plot_iter_cla.py          # Clarabel convergence visualisation.
-├── plot_iter_ecos.py         # ECOS convergence visualisation.
-├── plot_iter_mosek.py        # MOSEK convergence visualisation.
-├── plot_iter_scs.py          # SCS convergence visualisation.
+├── plot_iter_cla.py          # Clarabel convergence visualization.
+├── plot_iter_ecos.py         # ECOS convergence visualization.
+├── plot_iter_mosek.py        # MOSEK convergence visualization.
+├── plot_iter_scs.py          # SCS convergence visualization.
 ├── input/                    # Bundled benchmark datasets (JSON + optional NPZ).
-└── output/                   # Cached plots created by the visualisation scripts.
+└── output/                   # Cached plots created by the visualization scripts.
 ```
 
 ## Environment Setup
@@ -137,22 +137,22 @@ The `input/` directory ships with the JSON datasets used for our benchmarking ca
 | `huge128x800.json` | 128 × 800 | Intermediate large-scale case. |
 | `huge128x4000.json` | 128 × 4000 | Largest benchmark; used in `large_example.py`. |
 
-Each JSON record matches the schema required by the optimisation scripts. If you pass `--save-npz` to the generator, the corresponding `.npz` file will appear beside the JSON for faster NumPy loading.
+Each JSON record matches the schema required by the optimization scripts. If you pass `--save-npz` to the generator, the corresponding `.npz` file will appear beside the JSON for faster NumPy loading.
 
 ## Results Snapshot
 The runtime comparison summarised in `compare.py` highlights the trade-offs between solvers:
 
 | Solver | 8×12 | 32×100 | 32×200 | 64×800 | 128×800 | 128×4000 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Clarabel | 0.003 s | 0.041 s | 0.063 s | — | — | — |
-| SCS | 0.023 s | 0.616 s | 1.070 s | 38.900 s | 42.440 s | 212.190 s |
 | ECOS | 0.002 s | 0.021 s | 0.036 s | 0.298 s | 1.451 s | 2.130 s |
+| Clarabel | 0.003 s | 0.041 s | 0.063 s | — | — | — |
 | MOSEK | 0.013 s | 0.029 s | 0.045 s | 0.168 s | 0.188 s | 1.895 s |
+| SCS | 0.023 s | 0.616 s | 1.070 s | 38.901 s | 42.441 s | 212.192 s |
 
 Clarabel stalled on the two largest instances in our setup (denoted by `—`). ECOS delivered competitive performance across all sizes, while MOSEK provided the most consistent runtimes on the largest problems.
 
 ## Reproducing the Benchmarks
-Follow the steps below to recreate the figures and optimisation results:
+Follow the steps below to recreate the figures and optimization results:
 
 1. **Prepare the environment** using the instructions in [Environment Setup](#environment-setup). Install only the solvers you plan to run.
 2. **Generate datasets** if you want to explore alternative configurations. Otherwise reuse the JSON files shipped in `input/`.
@@ -163,7 +163,7 @@ Follow the steps below to recreate the figures and optimisation results:
 ## Troubleshooting & Tips
 - Always fix the `--seed` argument when synthesising new datasets so that experiments remain reproducible.
 - Large-scale problems solved with first-order methods (ECOS/SCS) benefit from the reserve scaling snippet included in `large_example.py`.
-- MOSEK and other commercial solvers require licence activation before first use; check the solver documentation if you encounter authorisation errors.
+- MOSEK and other commercial solvers require licence activation before first use; check the solver documentation if you encounter authorization errors.
 - When comparing solvers, record both wall-clock time and iteration counts to disentangle convergence speed from per-iteration cost.
 
 ## Credits
