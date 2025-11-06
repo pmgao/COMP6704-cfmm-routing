@@ -19,26 +19,41 @@
 10. [Credits](#credits)
 
 ## Project Overview
-This repository gathers the scripts, datasets, and plotting utilities that accompany our investigation of multi-pool routing in constant function market maker (CFMM) networks. We generate realistic synthetic liquidity configurations, formulate the routing optimisation problem in CVXPY, and evaluate a selection of convex solvers. The codebase is a cleaned-up derivative of the tooling originally authored by Wenxing Duan, Peimin Gao, Hiu Long Lee, and Yulin Zhou for COMP6704.
+This repository gathers the scripts, datasets, and plotting utilities that accompany our investigation of multi-pool routing in
+constant function market maker (CFMM) networks. The codebase is organised around small, task-focused Python entry points:
+
+- `generate_cfmm_dataset.py` synthesises liquidity networks that follow the data contract of the original
+  [angeris/cfmm-routing-code](https://github.com/angeris/cfmm-routing-code) project.
+- `large_example_*.py` scripts build and solve liquidation-style routing problems in CVXPY while targeting a specific solver
+  (Clarabel, ECOS, MOSEK, or SCS).
+- `plot_iter_*.py` scripts produce diagnostic figures from stored solver logs.
+- `compare.py` aggregates recorded runtimes across problem scales to recreate the summary figures from our report.
+
+The datasets bundled under `input/` and the example figures produced in `output/` make it easy to reproduce the analyses
+conducted for COMP6704.
 
 ## Key Features
-- **Dataset generator** that emits JSON (and optional NumPy) artefacts compatible with the [angeris/cfmm-routing-code](https://github.com/angeris/cfmm-routing-code) specification.
-- **End-to-end optimization example** showcasing how to load a dataset, assemble the convex programme, and solve a liquidation task.
+- **Dataset generator** that emits JSON (and optional NumPy) artefacts compatible with the upstream CFMM routing specification.
+- **Solver-specific optimisation examples** showcasing how to load a dataset, assemble the convex programme, and solve a
+  liquidation task with Clarabel, ECOS, MOSEK, or SCS.
 - **Solver diagnostics tooling** for visualising iteration logs from Clarabel, ECOS, SCS, and MOSEK across multiple problem sizes.
-- **Runtime comparison scripts** reproducing the summary plots used in our final report.
+- **Runtime comparison script** reproducing the summary plots used in our final report.
 
 ## Repository Structure
 ```
 .
-├── compare.py                # Generates the solver runtime comparison plot.
+├── compare.py                # Generates solver runtime comparison plots.
 ├── generate_cfmm_dataset.py  # CLI for synthetic CFMM network generation.
-├── large_example.py          # Liquidation-style routing example solved with CVXPY.
-├── plot_iter_cla.py          # Clarabel convergence visualization.
-├── plot_iter_ecos.py         # ECOS convergence visualization.
-├── plot_iter_mosek.py        # MOSEK convergence visualization.
-├── plot_iter_scs.py          # SCS convergence visualization.
+├── large_example_cla.py      # Clarabel-based liquidation example (CVXPY).
+├── large_example_ecos.py     # ECOS-based liquidation example (CVXPY).
+├── large_example_mosek.py    # MOSEK-based liquidation example (CVXPY).
+├── large_example_scs.py      # SCS-based liquidation example (CVXPY).
+├── plot_iter_cla.py          # Clarabel convergence visualisation.
+├── plot_iter_ecos.py         # ECOS convergence visualisation.
+├── plot_iter_mosek.py        # MOSEK convergence visualisation.
+├── plot_iter_scs.py          # SCS convergence visualisation.
 ├── input/                    # Bundled benchmark datasets (JSON + optional NPZ).
-└── output/                   # Cached plots created by the visualization scripts.
+└── output/                   # Cached plots created by the visualisation scripts.
 ```
 
 ## Environment Setup
@@ -90,25 +105,29 @@ python3 generate_cfmm_dataset.py \
 Add `--save-npz` if you prefer loading arrays from a compressed NumPy archive.
 
 ### 2. Solve a Routing Problem
-`large_example.py` demonstrates how to set up the liquidation problem discussed in class:
+The `large_example_*.py` family demonstrates how to set up the liquidation problem discussed in class with solver-specific
+defaults. Each script:
 
-1. Load a dataset (default: `huge128x4000.json`) and build the selection matrices \(A_i\).
-2. Declare non-negative decision variables `Δ` and `Λ` for each pool and aggregate the net trade vector \(\Psi\).
-3. Inject your desired trade size via `current_assets` (the default sells 20,000 units of the source token).
-4. Construct post-trade reserves \(R' = R + \gamma Δ - Λ\) and apply pool-specific convex constraints:
+1. Loads a dataset (default: `huge128x4000.json`) and builds the selection matrices \(A_i\).
+2. Declares non-negative decision variables `Δ` and `Λ` for each pool and aggregates the net trade vector \(\Psi\).
+3. Injects your desired trade size via `current_assets` (the default sells 20,000 units of the source token).
+4. Constructs post-trade reserves \(R' = R + \gamma Δ - Λ\) and applies pool-specific convex constraints:
    - Constant-product pools enforce product preservation through log-sum constraints.
    - Weighted pools apply a weighted geometric mean inequality.
    - Constant-sum pools preserve the reserve sum.
-5. Maximise the target token received and solve with MOSEK (default). Swap the solver for ECOS, SCS, or Clarabel by editing the `prob.solve(...)` call. A commented scaling snippet is included for first-order solvers.
+5. Maximises the target token received and solves with the solver matching the filename. Swap solvers by editing the
+   `prob.solve(...)` call or by running a different script variant.
 
 Run the example from the repository root:
 
 ```bash
-python3 large_example.py
+python3 large_example_mosek.py  # or _ecos, _cla, _scs for other solvers
 ```
 
 ### 3. Analyse Solver Iterations
-The plotting scripts (`plot_iter_cla.py`, `plot_iter_ecos.py`, `plot_iter_scs.py`, `plot_iter_mosek.py`) parse stored console logs and emit publication-ready figures showing cost and residual trajectories. Each script saves a PDF alongside an interactive window if your environment supports it:
+The plotting scripts (`plot_iter_cla.py`, `plot_iter_ecos.py`, `plot_iter_scs.py`, `plot_iter_mosek.py`) parse stored console logs
+and emit publication-ready figures showing cost and residual trajectories. Each script saves a PDF alongside an interactive window
+if your environment supports it:
 
 ```bash
 python3 plot_iter_ecos.py
@@ -117,7 +136,8 @@ python3 plot_iter_ecos.py
 The generated PDFs are stored under `output/` for convenience.
 
 ### 4. Compare Solver Runtimes
-`compare.py` encodes the hand-recorded runtimes for Clarabel, ECOS, SCS, and MOSEK across six problem scales (from `8×12` up to `128×4000`). Running the script produces the `solver_runtime_vs_size_0.pdf` figure and prints the output path.
+`compare.py` encodes the hand-recorded runtimes for Clarabel, ECOS, SCS, and MOSEK across six problem scales (from `8×12` up to
+`128×4000`). Running the script produces `solver_runtime_vs_size_0.pdf` (and variants) and prints the output path.
 
 ```bash
 python3 compare.py
@@ -135,9 +155,10 @@ The `input/` directory ships with the JSON datasets used for our benchmarking ca
 | `huge32x200.json` | 32 × 200 | Stress test for ECOS/SCS scaling. |
 | `huge64x800.json` | 64 × 800 | Large sparse network. |
 | `huge128x800.json` | 128 × 800 | Intermediate large-scale case. |
-| `huge128x4000.json` | 128 × 4000 | Largest benchmark; used in `large_example.py`. |
+| `huge128x4000.json` | 128 × 4000 | Largest benchmark; used in `large_example_*.py`. |
 
-Each JSON record matches the schema required by the optimization scripts. If you pass `--save-npz` to the generator, the corresponding `.npz` file will appear beside the JSON for faster NumPy loading.
+Each JSON record matches the schema required by the optimisation scripts. If you pass `--save-npz` to the generator, the corresponding `.npz`
+file will appear beside the JSON for faster NumPy loading.
 
 ## Results Snapshot
 The runtime comparison summarised in `compare.py` highlights the trade-offs between solvers:
@@ -149,21 +170,22 @@ The runtime comparison summarised in `compare.py` highlights the trade-offs betw
 | MOSEK | 0.013 s | 0.029 s | 0.045 s | 0.168 s | 0.188 s | 1.895 s |
 | SCS | 0.023 s | 0.616 s | 1.070 s | 38.901 s | 42.441 s | 212.192 s |
 
-Clarabel stalled on the two largest instances in our setup (denoted by `—`). ECOS delivered competitive performance across all sizes, while MOSEK provided the most consistent runtimes on the largest problems.
+Clarabel stalled on the two largest instances in our setup (denoted by `—`). ECOS delivered competitive performance across all sizes, while
+MOSEK provided the most consistent runtimes on the largest problems.
 
 ## Reproducing the Benchmarks
-Follow the steps below to recreate the figures and optimization results:
+Follow the steps below to recreate the figures and optimisation results:
 
 1. **Prepare the environment** using the instructions in [Environment Setup](#environment-setup). Install only the solvers you plan to run.
-2. **Generate datasets** if you want to explore alternative configurations. Otherwise reuse the JSON files shipped in `input/`.
-3. **Solve the routing problem** with `python large_example.py` and optionally tweak the trade size or solver choice.
+2. **Generate datasets** if you want to explore alternative configurations. Otherwise, reuse the JSON files shipped in `input/`.
+3. **Solve the routing problem** with `python large_example_<solver>.py` and optionally tweak the trade size or solver choice.
 4. **Produce iteration plots** by running any of the `plot_iter_*.py` scripts relevant to your solver logs.
 5. **Regenerate the runtime figure** with `python compare.py`. The output PDF is written to `output/` (and the current directory).
 
 ## Troubleshooting & Tips
 - Always fix the `--seed` argument when synthesising new datasets so that experiments remain reproducible.
-- Large-scale problems solved with first-order methods (ECOS/SCS) benefit from the reserve scaling snippet included in `large_example.py`.
-- MOSEK and other commercial solvers require licence activation before first use; check the solver documentation if you encounter authorization errors.
+- Large-scale problems solved with first-order methods (ECOS/SCS) benefit from the reserve scaling snippet included in the example scripts.
+- MOSEK and other commercial solvers require licence activation before first use; check the solver documentation if you encounter authorisation errors.
 - When comparing solvers, record both wall-clock time and iteration counts to disentangle convergence speed from per-iteration cost.
 
 ## Credits
