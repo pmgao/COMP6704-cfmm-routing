@@ -31,13 +31,6 @@ src = data["experiment"]["source_token"]
 tgt = data["experiment"]["target_token"]
 t = 20000.0  # you can change to any value from data["experiment"]["amount_grid"]
 
-# # if we run with ECOS solver, please use the following code
-# ###################################################################
-# scale = 1.0 / np.max([np.max(R) for R in reserves_list])
-# reserves_list = [R * scale for R in reserves_list]
-# t *= scale
-# ###################################################################
-
 
 current_assets = np.zeros(n)
 current_assets[src] = t
@@ -66,11 +59,5 @@ for k in range(m):
 # 7) Objective: maximize the amount of target token received (Ψ[tgt])
 prob = cp.Problem(cp.Maximize(psi[tgt]), cons)
 
-# # if we run with ECOS solver, please use the following code
-# ###################################################################
-# prob.solve(solver=cp.MOSEK, verbose=True, max_iters=20000)  # or SCS/MOSEK
-# print("Max target received:", float(psi.value[tgt]) / scale)
-# ###################################################################
-# otherwise
-prob.solve(solver=cp.MOSEK, verbose=True)  # or CLARABEL/SCS/MOSEK
+prob.solve(solver=cp.MOSEK, verbose=True)
 print("Max target received:", float(psi.value[tgt]))
